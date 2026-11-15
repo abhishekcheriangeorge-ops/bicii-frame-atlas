@@ -321,3 +321,193 @@ Frame ID, category (`acquisition`, `freight`, `labor`, `materials`, `overhead`, 
 Scoring version, dimension scores, evidence, confidence, calculated total, proposed class, approved class, reason for overrides, assessor/reviewer and dates.
 
 ### `market_comps`
+Target frame ID, maker/model, material, era, fork inclusion, condition, platform/source URL, listing/sold indication, currency, amount, date, comparability score, screenshots allowed only if lawful, notes. Never silently count asking prices as completed sales.
+
+### `pricing_versions`
+Inputs snapshot JSON, cost floor, target margin, selling channel fee, suggested class/band, suggested price, actual approved price, tax display configuration, override rationale, approver, approval timestamp and supersedes link.
+
+### `audit_events`
+Actor, entity, record ID, action, before/after diff or changed-field summary, timestamp, correlation/transaction ID; no hard delete for approvals.
+
+### `users` / `memberships` / `roles`
+Authenticated workshop personnel; role `admin`, `reviewer`, `mechanic`, `viewer`. Invite-only; no public signup in MVP.
+
+**Data integrity:** Foreign keys, constraints, created/updated timestamps, meaningful enums/checks and indexes on code, maker/model, status, class, fork and frame size. Monetary data as integer **SGD cents** or exact decimal—not floating point. Image files private by default. Prevent duplicate human-readable IDs under concurrency.
+
+---
+
+## 10. Interface map (mobile-first)
+
+1. **Dashboard:** counts by status and safety HOLD, recently updated, waiting for inspection, waiting for cost/pricing review, recently approved. No price-based “quality” ranking.
+2. **Frame inventory:** filters by status, brand/model, era, material, size, F-class, P-class, price, fork included, completion and evidence confidence; search code/serial (serial restricted by role).
+3. **New-frame wizard:** source → identity & photos → included fork/parts → initial condition → save. Autosave; allow unknown fields.
+4. **Frame detail:** identity, gallery, current status and warnings, inspection, work timeline, costs, comparables, suggested/approved price and customer story.
+5. **Inspection screen:** explicit visual-only header, checklist, concerns, photo evidence and final hold/pass/reject workflow.
+6. **Preparation planner:** P-code, tasks, estimates, stopwatch/manual time entry, actual consumables, photo comparison, reinspection triggers.
+7. **Desirability screen:** 6 scoring dimensions, tooltips, evidence fields, confidence, provisional class and override history.
+8. **Price worksheet:** edit cost assumptions; side-by-side **cost floor**, **class range**, **market evidence**, **proposed final**; margin preview at multiple prices; red warning if economically incoherent.
+9. **Review queue:** safety and pricing approval separate, no one-click self-approval by preparer unless `admin` override is explicitly logged.
+10. **Listing dossier:** private preview vs public-safe printable sheet, download Markdown/PDF/CSV/JSON, QR payload optional.
+11. **Settings:** costs/rates, default target margin, currencies/fees, scoring weights/cutoffs, permitted treatments, users and role permissions. Versions required; changing settings must not silently rewrite historical valuations.
+
+### UX details
+
+- Prominent safety status badge on the record screen; a red warning is appropriate here because it represents a real blocker.
+- Price class must be called **“Value class”** or **“Market class”**, *never* “quality” or “safety” grade.
+- `unknown` can be submitted at intake; mandatory inspection fields require explicit result before approval.
+- Photos should be taken from phone camera or uploaded, reordered, captioned, and marked internal/public.
+- Do not require internet for taking initial photos if a reasonable PWA/local draft can be implemented safely; server is the source of truth when online. If offline sync is too complex for MVP, document as Phase 2 rather than faking it.
+- Display SGD with two decimals internally and whole-dollar display as appropriate for retail. Show currency on every price screen.
+- Accessibility: keyboard navigation, visible labels, proper form validation, contrast and touch-target sizes.
+
+---
+
+## 11. Permissions, security and privacy
+
+- **Viewer:** read approved/public-safe records and non-sensitive inventory fields; cannot see seller PII or internal acquisition costs unless granted.
+- **Mechanic:** create intake, inspections and work logs; propose grading/prices; cannot approve own unsafe frame.
+- **Reviewer:** approve structural release and price, return work for revision, can access costing as authorised.
+- **Admin:** manage roles, settings and audited overrides. No silent deletion of past evidence or approvals.
+- Use Supabase Auth or equivalent invite-only sign-in, PostgreSQL row-level security and server-enforced actions. Never put `service_role` keys in browser or repository.
+- Validate all incoming file types/sizes; use signed image upload/read URLs, private buckets and storage cleanup policies.
+- Protect acquisition seller data and serial photos from public sharing without explicit purpose.
+- Keep a clear `inspection_method` column, default `visual_mechanical`; do not let the UI imply laboratory testing.
+- Backups and retention policy to be decided; support data export and no opaque proprietary lock-in.
+
+---
+
+## 12. Future integration boundary
+
+The existing `georgieboys/BICII` website is a separate Next.js site and currently has Supabase-backed account/booking data plus a distinct Shopify storefront at `https://shop.bicii.sg`. **Do not connect Frame Atlas to either in the MVP without approval.**
+
+Prepare a minimal export shape:
+
+```json
+{
+  "frame_code": "BICII-F-000001",
+  "identity": {
+    "brand": "Giant",
+    "model": "Yukon",
+    "year_from": 1992,
+    "year_to": 1994,
+    "confidence": "provisional"
+  },
+  "material": "steel",
+  "fork_included": true,
+  "inspection": {
+    "method": "visual_mechanical",
+    "outcome": "PASS_VISUAL",
+    "performed_at": "2026-11-16"
+  },
+  "preservation": {
+    "class": "P2",
+    "completed_tasks": ["degrease", "clean", "corrosion_protection"]
+  },
+  "valuation": {
+    "class": "F3",
+    "approved_price_sgd": 500.00,
+    "approved": true
+  },
+  "listing_eligible": true,
+  "notes": "Illustrative export example only; not a real inspected frame."
+}
+```
+
+Do not expose internal labour rate, seller or acquisition cost in public JSON. A future read-only public API may expose approved records; Shopify product/variant mapping and build-level compatibility can be added once product handling is decided.
+
+---
+
+## 13. Compatibility with BICII build levels (future module)
+
+The retail model is **prepared frame + build package**. This grading application does **not** need to quote finished bikes in MVP, but must be able to store practical compatibility data for future packages:
+
+| Build | Build price excluding frame | Intended specification, subject to compatibility |
+|---|---:|---|
+| Basic | S$400 | Serviced vintage parts; new consumables; suitable generic blackwall/tanwall tyres |
+| Basic+ | S$700 | More choice, Maxxis Pace where suitable |
+| Standard | S$1,100 | Shimano Deore 11-speed, appropriate wheel/freehub/brake setup |
+| Standard+ | S$1,700 | Deore XT or mixed Deore/XT, selected tyres including possible Panaracer/Schwalbe |
+| Custom | By consultation | XTR, Chris King, period-correct or specialist builds as specified |
+
+Across *every* package: **new tyres, tubes, chain, chainrings, cassette/freewheel where applicable, brake pads/shoes, cables, housing, and saddle**. A package is not eligible just because a sticker says “26-inch”; actual standards and measurements matter. Future eligibility output should be `compatible | incompatible | requires_review`, with reason, not a simplistic true/false.
+
+For internal financial awareness, packages use the initial labour allocation of **S$200 Basic** and **S$250 each for Basic+, Standard and Standard+**; the remainder is not all “profit” — parts, overhead and margin must still be accounted for. **Do not expose these allocations in public copy.**
+
+---
+
+## 14. Acceptance tests and examples
+
+### Safety invariants
+
+- Given an unchecked head tube weld marked `concern`, the system **must not** permit `approved` or `listing_eligible=true`.
+- Given a frame with `not_inspected` mandatory fork steerer and an included fork, final approval must be blocked.
+- Given a new crack noted during preservation work, any previous approval must become invalid pending reinspection.
+- Given `REJECT`, frame cannot be made available for a complete bike build by adjusting market class.
+- A public dossier must say “visual/mechanical inspection,” never “X-ray cleared” unless a separate actual service record exists and is approved.
+
+### Pricing logic
+
+- Cost S$212.50 and target margin 40%, zero fee → minimum S$354.166..., shown as S$354.17 before rounding.
+- Cost S$120 and 40% target → minimum S$200.
+- Infeasible target margin + fee >= 100% should yield validation error, not negative/infinite price.
+- Change in labour rate must recompute proposed cost but **not** rewrite previously approved price versions.
+- An F2 frame whose cost floor exceeds S$499 should show a visible pricing conflict rather than automatically becoming F3.
+- A manager-approved below-floor sale must require justification and retain negative/low-margin warning.
+- Both `asking` and `sold` comparables must remain labelled and separable.
+
+### Data and workflow
+
+- Cannot set a frame to `approved` without inspector, checklist, inspection date, photos and price approver.
+- Two concurrent intakes cannot receive the same frame ID.
+- All record editing/approval/override changes generate audit events.
+- A staff member cannot see private seller details unless their role allows it.
+- Public exports exclude private costs, seller PII and hidden images.
+- Unknown manufacturer/model/year may remain unknown; UI must not invent a provenance or convert a guess into certainty.
+- A frameset price and bare-frame comp trigger a “not like-for-like” notice.
+
+### UI and build quality
+
+- Usable on iPhone-sized screens and iPad without horizontal scroll in main workflows.
+- Camera/photo upload works with errors handled.
+- Form validation describes what needs attention.
+- Generated PDF/Markdown/JSON is useful without requiring a staff login to interpret it, but never leaks privileged data.
+- Project has migrations, a data-seeding script for **fictional examples clearly tagged as samples**, automated tests and a deploy README.
+
+---
+
+## 15. Suggested build phases for Cursor
+
+**Phase 1 — Data and auth:** Next.js, database migration, typed models, authentication, RBAC/RLS, image storage, sample data, UI shell.
+
+**Phase 2 — Intake and inventory:** Frame records, attachments, search/filter, detailed pages, draft save and role permissions.
+
+**Phase 3 — Inspection and safety gate:** Versioned checklists, evidence, sign-off, holds/rejects and unbypassable backend state transitions.
+
+**Phase 4 — Preservation:** Task planning, time logs, material cost, photos and actual cost calculation.
+
+**Phase 5 — Valuation:** Configurable value scoring, comparables, price floor, class ranges, approvals, history and pricing conflict warnings.
+
+**Phase 6 — Exports and QA:** Public-safe frame dossier, Markdown/JSON/CSV export, printable layout, tests and owner demo dataset.
+
+**After MVP:** RFID/QR labels, barcode scans, frame compatibility engine, richer condition reports, approved Frame Atlas ↔ BICII PWA ↔ Shopify sync, market comp research import (subject to site TOS), customer-facing frame stories and analytics.
+
+For each phase, Cursor should show working code and tests, not only describe future intent. No live site changes or external listings without explicit authorisation.
+
+---
+
+## 16. Questions for owner calibration — not blockers to building the MVP
+
+The app should work with editable defaults while these are decided:
+
+1. Actual **staff labour rates** for frame preparation, whether internal cost or full shop rate, and if they differ by task.
+2. Default **target frame gross margin**, overhead allocation and sales-channel fee assumptions.
+3. Whether BICII will apply GST, and if retail pricing is shown GST-inclusive.
+4. Definition and reviewer qualifications for a `PASS_VISUAL` assessment; what conditions require external structural expert assessment.
+5. Whether paint touch-up, internal steel treatment and corrosion protection are universal practices or condition-specific; exact consumable brands/methods.
+6. How to distinguish purchase, consignment and a customer-owned frame, and what price/cost fields are hidden from a customer.
+7. Preferred public frame-description format, label dimensions and QR data.
+8. Whether F1–F5 ranges should be fixed bands or guidance that can be overridden freely with evidence.
+
+**Recommended calibration exercise:** Enter 15–20 real frames through the MVP, including a Giant Yukon, common aluminium frames (e.g. lesser-known 1990s models), high-demand chromoly and rare collector pieces. Compare actual preparation time, credible market comparables, suggested retail price and what customers are actually willing to pay. Adjust scoring thresholds and pricing settings in a versioned way before using the app as a standard.
+
+**End of specification.**
