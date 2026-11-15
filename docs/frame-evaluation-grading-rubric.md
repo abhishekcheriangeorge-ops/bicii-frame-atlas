@@ -94,4 +94,35 @@ Implications that the software must encode:
 2. **The used frame inherits nothing automatically.** A model-level claim applies to this serial only if there is no crash, overload, modification, or unrepaired recall. Cut steerer tubes and replaced hangers are normal service, not modifications. The following void an inherited claim: cracked or dented structure, undocumented composite repair, spread or cold-set dropouts on aluminum or carbon, drilled holes, motor mounts, a fork whose axle-to-crown or offset is not the one the frame was designed around, and use in a more severe class than the tested type.
 3. **Category loads are not interchangeable.** A racing-bicycle test does not qualify a frame as a mountain bicycle. Gravel has no ISO type. Store `iso_type_claimed` separately from `shop_use_class`.
 4. **Downhill, freeride, dirt jump, trials, BMX, cargo, and EPACs are outside the scope sentence.** Missing ISO paperwork on those classes is not a defect when `iso_scope = "out_of_scope"` is set on purpose. Do not award a fake ISO point, and do not penalize the absence.
-5. **Some damage accumulation is allowed inside a laboratory pass.*
+5. **Some damage accumulation is allowed inside a laboratory pass.** For composite frames, ISO 4210-2:2015 clauses 4.8.4–4.8.6 require that peak-to-peak running displacement during fatigue not increase by more than 20% of the initial value. Rigid composite forks use 20%; suspension forks use 40% (ISO 4210-2:2015, 4.9.6). Seven Cycles criticizes that allowance and reads it as accepted stiffness loss. EFBE likewise argues that a material-specific deflection rule does not match the failures they see, and runs its own force-based program. The shop rule is narrower than either argument: **the 20% figure is not a field measurement and is not a remaining-life score.** A tap-test cannot estimate it.
+6. **Permanent set in the lab is not a bend allowance in the shop.** After the defined impact, a new sample may show a limited wheelbase change and still pass. That does not mean a used frame with a visible bend is acceptable. Any permanent bend found at intake is damage.
+7. **“No visible crack” is the failure language, and the standard tells labs to make cracks visible.** ISO 4210-2:2023 clause 4.4 says standardized crack-detection methods should be used where a visible crack is the failure criterion, and points at dye-penetrant methods in the ISO 3452 series, plus white paint for composites. A shop loupe inspection is the same idea at lower sensitivity. It is not equivalent to a post-test laboratory inspection.
+8. **2023 added failure modes that older certificates never saw.** The foreword to ISO 4210-2:2023 adds rear brake-mount requirements (4.8.7), a further disc-brake fork provision (4.9.8.3), and a steerer-tube fatigue requirement (4.9.9). The foreword to ISO 4210-6:2023 says the frame fatigue methods (4.3, 4.4, 4.5), the new brake-mount method (4.6), the fork impact method (5.4), the disc-brake fork method (5.6), and the steerer/stem fatigue method (5.7) were revised or added. A 2014 road frame can be honest, safe, and never tested for flat-mount fatigue. Do not treat “no 2023 certificate” as a crack. Do treat a cracked flat-mount as a crack.
+
+### 2.3 Frame tests, in shop language
+
+Methods below are from ISO 4210-6:2023. Acceptance limits quoted from ISO 4210-2:2015 clauses 4.8 and 4.9 are the ones those clauses state. The 2023 requirements foreword does not list 4.8.2–4.8.6 as rewritten. Confirm the purchased 2023 text before printing a newton value on a customer certificate. **None of these loads are shop acceptance limits.**
+
+**Falling-mass impact (ISO 4210-6:2023, 4.1).** The frame is held by the rear axle, upright. A 22.5 kg striker drops onto a roller in the fork, against the rake direction. Drop heights in Table 1 of that edition:
+
+| ISO type | Drop height |
+| --- | ---: |
+| City and trekking | 180 mm |
+| Young adult | 180 mm |
+| Mountain | 360 mm |
+| Racing | 212 mm |
+
+If the fork fails, the frame is retested on a dummy fork. The lab measures wheelbase before and after. ISO 4210-2:2015, 4.8.2: no visible crack or fracture. Permanent wheelbase change shall not exceed 30 mm when a real fork is fitted. With a dummy fork the limits in its Table 5 are 10 mm for city, young adult, and mountain, and 15 mm for racing.
+
+Shop meaning: this is a frontal impact on the fork/head-tube load path. It is why a crashed fork is not “probably fine if the paint is intact,” and why a road frame is not cleared for mountain impacts by a racing test. Mountain drop height is much higher.
+
+**Falling-frame impact (ISO 4210-6:2023, 4.2).** The frameset rotates about the rear axle and the fork strikes a steel anvil. Masses are fixed to the seatpost (center of gravity 75 mm from the insertion point), the steering head, and the bottom bracket. The drop is repeated, then wheelbase is remeasured. Table 2:
+
+| ISO type | Seatpost mass | Head mass | Bottom-bracket mass | Drop height |
+| --- | ---: | ---: | ---: | ---: |
+| City and trekking | 50 kg | 10 kg | 30 kg | 200 mm |
+| Young adult | 40 kg | 10 kg | 20 kg | 200 mm |
+| Mountain | 30 kg | 10 kg | 50 kg | 300 mm |
+| Racing | 30 kg | 10 kg | 50 kg | 200 mm |
+
+ISO 4210-2:201
