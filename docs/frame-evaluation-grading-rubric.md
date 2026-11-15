@@ -24,4 +24,39 @@ Use this rubric for calibration language (ISO/UCI limits, material rules, listin
 
 Category weights are fixed for this schema. Retuning them is a new schema version, not a configuration tweak.
 
-| Category | Points 
+| Category | Points | Question it answers |
+| --- | ---: | --- |
+| Structural integrity | 0–40 | Is there a reason this frameset should not be ridden? |
+| Cosmetic condition | 0–20 | What does an honest listing have to disclose about finish? |
+| Standards and compatibility | 0–15 | Can it be identified, built, and braked with its stated parts? |
+| Brand and market desirability | 0–15 | Will a buyer want this model once it is known to be sound? |
+| Geometry fit-for-use | 0–10 | Do the measured numbers match the declared riding class? |
+
+Point total = the five scores. Letter grades are **not** the point total alone. Gates in [Letter grades](#10-letter-grades-and-gates) can only lower the letter. A cracked frame with a famous logo is `F`.
+
+```text
+points_total = structural + cosmetic + standards + market + geometry   # 0..100
+raw_letter   = band(points_total)                                     # S..F
+letter       = apply_gates(raw_letter, structural, findings, inspection)
+```
+
+All category scores are integers. Deductions in this schema are integers, so the implementation does not round.
+
+---
+
+## 1. What belongs in the grade, and what does not
+
+The tool grades the frameset that is in the workstand today.
+
+In the grade:
+
+- Cracks, delamination, crushed laminate, bent or cracked steerers, dropout and brake-mount damage, bottom-bracket shell damage, alignment, and pivot cracks.
+- Finish, decals, and rust staining, scored separately from structure.
+- Interface standards: axles, brakes, headset, bottom bracket, seatpost, hanger, wheel size.
+- Whether a claimed ISO 4210 type or UCI approval is documented, absent, or contradicted.
+- Whether stack, reach, head angle, and trail fit the declared use class.
+
+Out of the grade, stored as other records if the shop cares:
+
+- Drivetrain wear, wheel true, suspension service, and tire tread. Those are component grades.
+- Laboratory stiffness, weight-as-performance, and wind-tunnel drag. Optional `lab_metrics` may be displayed. They do not change `letter` i
