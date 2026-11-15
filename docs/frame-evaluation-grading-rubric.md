@@ -125,4 +125,23 @@ Shop meaning: this is a frontal impact on the fork/head-tube load path. It is wh
 | Mountain | 30 kg | 10 kg | 50 kg | 300 mm |
 | Racing | 30 kg | 10 kg | 50 kg | 200 mm |
 
-ISO 4210-2:201
+ISO 4210-2:2015, 4.8.3: no visible cracks or fractures, and no separation of suspension parts after the second impact. Permanent wheelbase change shall not exceed 60 mm for city, young adult, and mountain, and 15 mm for racing.
+
+Shop meaning: racing frames are held to a much tighter permanent set in this test than mountain frames. That is a design-category difference. It is still not permission for a used racing frame to be 15 mm out of alignment. Suspension frames have an extra requirement: if the spring or damper fails, the tire must not hit the frame and the rear-wheel assembly must not detach (ISO 4210-2:2015, 4.8.1). At intake, a cracked pivot yoke or a shock mount that can pull out is a structural fail even if the main tubes look good.
+
+**Pedalling fatigue (ISO 4210-6:2023, 4.3).** Cranks are held 45° forward and down. A downward force is applied at each pedal, 150 mm from the frame centerline, inclined 7.5° from the fore-aft plane, alternating, for 100 000 cycles (one cycle is both pedals). If the built crank length is unknown, the method uses 175 mm. Published load tables for this clause, consistent across a manufacturer test report to ISO 4210-6:2023 and secondary summaries of the same table:
+
+| ISO type | Pedal force |
+| --- | ---: |
+| City and trekking | 1 000 N |
+| Young adult | 1 000 N |
+| Mountain | 1 200 N |
+| Racing | 1 100 N |
+
+ISO 4210-2:2015, 4.8.4: no visible cracks or fractures and no suspension separation. Composite frames: running displacement must not grow by more than 20%.
+
+Shop meaning: bottom-bracket shells, chainstay bridges, and down-tube/BB junctions are the fatigue sites this test is written around. Bearing play is not a frame failure. Shell ovality, a cracked lug, or a bond line opening at the BB is.
+
+**Horizontal fatigue (ISO 4210-6:2023, 4.4).** Fully reversed horizontal forces are applied at the front axle while the rear axle is pivoted. The ISO text as exposed on the ISO catalog entry for the 2023 method standard gives:
+
+| ISO type | Forward fo
