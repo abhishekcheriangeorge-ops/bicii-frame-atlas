@@ -144,4 +144,45 @@ Shop meaning: bottom-bracket shells, chainstay bridges, and down-tube/BB junctio
 
 **Horizontal fatigue (ISO 4210-6:2023, 4.4).** Fully reversed horizontal forces are applied at the front axle while the rear axle is pivoted. The ISO text as exposed on the ISO catalog entry for the 2023 method standard gives:
 
-| ISO type | Forward fo
+| ISO type | Forward force | Rearward force | Cycles |
+| --- | ---: | ---: | ---: |
+| City and trekking | 450 N | 450 N | 100 000 |
+| Young adult | 450 N | 450 N | 100 000 |
+| Mountain | 1 200 N | 600 N | 50 000 |
+| Racing | 600 N | 600 N | 100 000 |
+
+A racing-category report published against the same clause used 600 N / 600 N for 100 000 cycles and passed with no cracks. Mountain frames see a much higher forward load and fewer cycles.
+
+Shop meaning: this is the head-tube, down-tube, and fork-dropout load path for bumps and braking. It is not a stiffness score.
+
+**Vertical fatigue (ISO 4210-6:2023, 4.5).** A repeated vertical force simulates rider weight and road shock. The same published load comparison gives:
+
+| ISO type | Vertical force |
+| --- | ---: |
+| City and trekking | 1 000 N |
+| Young adult | 500 N |
+| Mountain | 1 200 N |
+| Racing | 1 200 N |
+
+The racing-category report applied 1 200 N for 50 000 cycles. Acceptance is again no crack, no suspension separation, and the 20% composite displacement limit (ISO 4210-2:2015, 4.8.6).
+
+Shop meaning: seat-tube clusters, seatstays, and seat-clamp areas. A seatpost that slips is not a frame defect. A crack at the seat-tube/top-tube junction is.
+
+**Rear brake mounts (ISO 4210-6:2023, 4.6, required by ISO 4210-2:2023, 4.8.7).** This block was added in the 2023 edition. The racing report cited static loads of 700 N rearward and 300 N forward, held 1 minute, and a fatigue block of 500 N rearward and 50 N forward for 20 000 cycles. Treat those newtons as that report’s applied values, not as a complete reprint of every category’s table.
+
+Shop meaning: a cracked, stripped, or peeling disc-brake tab is a primary structural item, including on metal frames. Rim-brake bosses that are the only brake interface get the same severity.
+
+### 2.4 Fork tests, in shop language
+
+ISO 4210-2:2015, 4.9, applies the strength tests to all fork types. Suspension forks are tested at unloaded length unless the method says otherwise.
+
+| Test | What a pass means in the 2015 requirements text | Shop translation |
+| --- | --- | --- |
+| Axle location | Wheel sits centered when the axle is fully in the slots | A wheel that will not center, or a dropout the axle will not seat in, fails intake |
+| Suspension tire clearance | Tire does not hit the crown; parts do not separate | Look for crown rub and for legs that pull out of the casting |
+| Tensile | Sliders and legs do not separate | Any dropout insert pullout or leg separation is a fail |
+| Static bending | No crack; permanent axle-to-steerer deflection ≤ 10 mm | A fork that is visibly bent has already exceeded what the lab allows a new fork after this test. Bent fork = fail |
+| Rearward impact, all-metal | First impact: fail if cracked **or** if permanent set exceeds 45 mm. Then a second impact with no fracture. Then a third check: no movement between steerer and crown | Do not adopt 45 mm as an allowable used-fork bend. Any steerer/crown shift is a fail |
+| Rearward impact, any composite content | No fracture and permanent set ≤ 45 mm, then the steerer/crown check | Composite forks do not get the “bend but survive” path. No fracture is the rule |
+| Bending fatigue plus rearward impact | No fracture; permanent set ≤ 45 mm. Composite running displacement ≤ +20% (rigid) or ≤ +40% (suspension) | A fork that has been crashed is not cleared by a static look at the blades alone |
+| Hub or disc brake | Static torque, plus extra provisions for composite disc forks | Cracked disc tab or a tab that has
