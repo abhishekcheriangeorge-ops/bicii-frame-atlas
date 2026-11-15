@@ -31,13 +31,18 @@ jobs:
             echo "rubric DONE marker missing; skip"
           fi
 
-          if [ -f parts/lock/DONE ]; then
+          if [ -f parts/lock/URL ]; then
+            curl -fsSL "$(tr -d '[:space:]' < parts/lock/URL)" -o package-lock.json
+            echo "lock bytes $(wc -c < package-lock.json)"
+            sha256sum package-lock.json
+            git add package-lock.json
+          elif [ -f parts/lock/DONE ]; then
             cat $(ls parts/lock/*.part | sort) > package-lock.json
             echo "lock bytes $(wc -c < package-lock.json)"
             sha256sum package-lock.json
             git add package-lock.json
           else
-            echo "lock DONE marker missing; skip"
+            echo "lock URL/DONE marker missing; skip"
           fi
 
           if git diff --cached --quiet; then
