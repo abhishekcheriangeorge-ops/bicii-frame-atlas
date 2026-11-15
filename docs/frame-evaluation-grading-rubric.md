@@ -59,4 +59,39 @@ In the grade:
 Out of the grade, stored as other records if the shop cares:
 
 - Drivetrain wear, wheel true, suspension service, and tire tread. Those are component grades.
-- Laboratory stiffness, weight-as-performance, and wind-tunnel drag. Optional `lab_metrics` may be displayed. They do not change `letter` i
+- Laboratory stiffness, weight-as-performance, and wind-tunnel drag. Optional `lab_metrics` may be displayed. They do not change `letter` in schema 1.0. A comfortable endurance frame is allowed to be flexible.
+- Price. Market desirability is parts support and generation, not a live quote.
+- Stolen-bike status. A Bike Index hit sets `sale_blocked` and disposition `hold`. It does not rewrite the structural score. Pinkbike’s buyer guide recommends the serial check; it is an ownership check.
+
+Do not build a shop rig that drops a mass on a fork or cycles a frame to ISO loads. Those tests damage the sample. The standard itself is a laboratory method for new samples.
+
+---
+
+## 2. ISO 4210, translated for a grading engine
+
+### 2.1 What the standard is
+
+ISO 4210 is a multi-part safety standard for bicycles. The parts a frameset grader needs:
+
+| Part | Role |
+| --- | --- |
+| ISO 4210-1 | Vocabulary |
+| ISO 4210-2:2023 | Safety **requirements** and pass/fail rules for city and trekking, young adult, mountain, and racing bicycles |
+| ISO 4210-3 | Common test methods, including how running displacement is judged in fatigue |
+| ISO 4210-6:2023 | Frame and fork **test methods** |
+
+ISO 4210-2:2023 applies to young adult bicycles with a maximum saddle height of at least 635 mm and less than 750 mm, and to city and trekking, mountain, and racing bicycles with a maximum saddle height of at least 635 mm, including folding bicycles. It does **not** apply to delivery bicycles, recumbents, tandems, BMX, or bicycles designed for severe use such as sanctioned competition, stunting, or aerobatic maneuvers. Smaller children’s bicycles are pointed at ISO 8098 when maximum saddle height is greater than 435 mm and less than 635 mm. The introduction states that the scope is safety, and that the series deliberately does not standardize components.
+
+EN ISO 4210 is the European adoption. Older EN 14764 (city), EN 14766 (mountain), and EN 14781 (racing) were superseded by EN ISO 4210. A pre-2015 “tested to EN 14781” claim is historical evidence, not evidence of the 2023 method.
+
+ISO 4210 is not, by itself, the US consumer-product rule. In the United States, new bicycles fall under CPSC rules in 16 CFR Part 1512. In the UK, Cycling Weekly’s October 2024 explainer notes that a seller must put a safe product on the market, and that ISO 4210 is the usual way to show diligence rather than a statute that names the ISO number. Electrically power-assisted cycles are a different standard family (EN 15194) and are out of this schema. A motor or battery mount sets `standard_family = "epac"` and blocks an ISO 4210 “pass” claim.
+
+### 2.2 It is a sample test of a new design, not a grade of the used frame
+
+Implications that the software must encode:
+
+1. **Pass/fail minimum, not a quality rank.** Two frames that pass can differ in stiffness, weight, repairability, and fatigue margin. ISO compliance must not add more than the 2 points specified in [standards](#93-standards-and-compatibility-0-15). It must never add structural points.
+2. **The used frame inherits nothing automatically.** A model-level claim applies to this serial only if there is no crash, overload, modification, or unrepaired recall. Cut steerer tubes and replaced hangers are normal service, not modifications. The following void an inherited claim: cracked or dented structure, undocumented composite repair, spread or cold-set dropouts on aluminum or carbon, drilled holes, motor mounts, a fork whose axle-to-crown or offset is not the one the frame was designed around, and use in a more severe class than the tested type.
+3. **Category loads are not interchangeable.** A racing-bicycle test does not qualify a frame as a mountain bicycle. Gravel has no ISO type. Store `iso_type_claimed` separately from `shop_use_class`.
+4. **Downhill, freeride, dirt jump, trials, BMX, cargo, and EPACs are outside the scope sentence.** Missing ISO paperwork on those classes is not a defect when `iso_scope = "out_of_scope"` is set on purpose. Do not award a fake ISO point, and do not penalize the absence.
+5. **Some damage accumulation is allowed inside a laboratory pass.*
