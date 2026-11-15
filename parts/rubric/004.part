@@ -1,0 +1,245 @@
+f. Straightedge or roll the steerer. Loupe the clamp band | `STEERER_SCORE` −2 if round and uncracked. `STEERER_BENT` or `STEERER_CRACK` hard fail |
+| Dropouts | Axle threads in by hand, faces parallel, wheel centers | Light face marks `DROPOUT_SCORE` −1. Will not retain an axle, cracked, or insert pulling out: hard fail `DROPOUT_WONT_RETAIN` or `CRACK` |
+| Hanger | Alignment gauge | Replaceable bent hanger `HANGER_BENT_REPLACEABLE` −1. Integral bent hanger `HANGER_INTEGRAL_BENT` −5 |
+| Brake mounts | Bolts to spec, no paint split at the root of the tab | Repairable threads −3 `BRAKE_THREADS_REPAIRABLE`. Cracked tab hard fail |
+| Alignment | String or alignment gauge. Record asymmetry in mm | Correctable steel/ti `ALIGNMENT_CORRECTABLE` −3. Asymmetry over 3 mm `ALIGNMENT_OVER_3MM` −5. Aluminum or carbon that cannot be cold-set safely: hard fail `ALIGNMENT_UNCORRECTABLE` |
+| Fork match | Axle-to-crown and offset versus the frame’s design, if known | Mismatch over 10 mm axle-to-crown, or unknown fork on a carbon frame, `FORK_SPEC_UNKNOWN` −2 and geometry consistency fails |
+| Pivots | Wheel out, flex the rear end laterally; cycle the suspension | Play from bearings is service. Play from an elongated pivot or a cracked yoke: −2 per pivot, max −4, code `PIVOT_PLAY`. A cracked yoke is `CRACK` |
+| Seatpost | Insert to minimum and clamp to torque | Bore damage `SEAT_BORE_DAMAGE` −3. A normal slip is service |
+
+Functional checks require the frame in the stand. `inspection_mode = "photos_only"` cannot create these codes except as “not seen,” and it applies the photos cap.
+
+### 7.5 Evidence caps
+
+Apply after deductions, and after hard-fail floors. A cap never raises a score.
+
+| Condition | Structural cap | Other effect |
+| --- | --- | --- |
+| `inspection_mode = photos_only` | 22 | Letter max B. Interface points in standards cannot exceed 1 each |
+| `stickers_not_lifted` | 28 | Letter max B |
+| `repaint_hiding_joints` | 24 | Letter max B |
+| `inspection_incomplete` | 26 | Letter max B |
+| `recall_search_skipped` | none | Letter max B |
+| `material = unknown` | 26 | Letter max B |
+
+### 7.6 When to stop and send it out
+
+Send the frameset to a composite specialist, and set disposition `quarantine`, if any of these is true: disclosed crash, dull tap, spiderweb paint, fiber show, previous carbon repair without a report, or a high-value carbon frame the shop intends to warrant and the history is unknown. Do not “clear” it in software to win the argument.
+
+Send metal to dye penetrant when paint is cracked at a weld. Until that happens, keep `PAINT_CRACK_AT_JOINT`.
+
+---
+
+## 8. Geometry fit-for-use
+
+### 8.1 Definitions
+
+Measurements are millimeters and degrees. Head angle is the shop-chart convention: degrees of the steering axis **above the horizontal**. 73° is a steep road head tube. 64° is a slack mountain head tube.
+
+- **Stack:** vertical distance from the bottom-bracket center to the top of the head tube, at the head-tube centerline.
+- **Reach:** horizontal distance from the bottom-bracket center to that same point.
+- **STR:** `stack / reach`. Size-independent enough to classify a frame. Absolute stack and reach are not, because they mostly encode size.
+- **Fork offset (rake):** perpendicular distance from the steering axis to the front-axle center.
+- **Trail:** horizontal distance, at the ground, from the steering-axis intersection back to the tire contact. ISO 4210-2 has an informative steering-geometry annex; it is not a pass/fail test. Use the ordinary mechanical-trail formula, and store the radius you used:
+
+```text
+trail_mm = (radius_mm * cos(head_angle) - offset_mm) / sin(head_angle)
+```
+
+with `head_angle` converted to radians. Worked check: 73°, offset 45 mm, radius 340 mm → trail 56.9 mm.
+
+`radius_mm` is the loaded wheel’s rolling radius, not the bead-seat radius. The inspector may override it. Starting values if they do not:
+
+| Wheel and tire | Starting radius |
+| --- | ---: |
+| 700 × 25 | 335 mm |
+| 700 × 28 | 340 mm |
+| 700 × 32 | 344 mm |
+| 650b × 47 | 345 mm |
+| 26 × 2.2 | 340 mm |
+| 27.5 × 2.4 | 348 mm |
+| 29 × 2.4 | 372 mm |
+
+**STR+** (TOUR’s hand position, including stem and bar, lowest spacer) is optional and is **not** compared to the bands below. If both exist, store both.
+
+### 8.2 Shop use classes
+
+`shop_use_class` is what the frameset is being graded **as**. It is not always the decal on the down tube. If the measured geometry fits a neighbor class better, the engine fills `suggested_class` and still scores against the declared class, so a race frame mislabeled as endurance loses geometry points until someone corrects the declaration.
+
+| `shop_use_class` | ISO type it may correspond to | Notes |
+| --- | --- | --- |
+| `road_race` | racing | Includes modern aero race bikes |
+| `tt` | racing | Fit is aggressive; UCI list applies if it will be raced under UCI TT rules |
+| `endurance_road` | racing | Still usually tested as a racing bicycle, despite the taller front end |
+| `cyclocross` | racing | UCI applicable |
+| `gravel` | none | Maker may have tested it as racing or as city/trekking. Do not invent which |
+| `touring` | city_trekking | |
+| `city` | city_trekking | |
+| `xc` | mountain | |
+| `trail` | mountain | |
+| `enduro` | mountain, sometimes out of scope | If the maker sold it as a race enduro / park bike, set `iso_scope = out_of_scope` |
+| `dh` | out of scope | ISO 4210 excludes this use |
+| `dirt_jump` | out of scope | |
+| `bmx` | out of scope | |
+
+Adjacent classes, used only when STR or head angle misses the declared band:
+
+```text
+road_race:      endurance_road, tt, cyclocross
+tt:             road_race
+endurance_road: road_race, gravel, touring
+gravel:         endurance_road, touring, cyclocross
+touring:        gravel, endurance_road, city
+city:           touring
+cyclocross:     road_race, gravel
+xc:             trail
+trail:          xc, enduro
+enduro:         trail, dh
+dh:             enduro
+dirt_jump:      xc
+bmx:            dirt_jump
+```
+
+### 8.3 Bands (`geometry_bands_v1`)
+
+These bands are configuration for this schema, not an ISO limit and not a fit calculator. They were set so that published “typical medium” ranges sit inside them, and so that a competition bike TOUR measured at STR 1.48 (Factor Ostro VAM, January 2025 test) still falls inside `road_race`. Overlap is intentional: a frame inside two bands is acceptable for either declared class.
+
+STR, head angle, and trail are the scored dimensions. Trail bands assume the starting radii above.
+
+| Class | STR | Head angle (°) | Trail (mm) |
+| --- | --- | --- | --- |
+| `road_race` | 1.35–1.50 | 72.0–74.0 | 52–64 |
+| `tt` | 1.20–1.40 | 72.0–74.5 | 50–64 |
+| `endurance_road` | 1.45–1.60 | 71.0–73.5 | 54–68 |
+| `cyclocross` | 1.40–1.55 | 71.0–73.5 | 55–70 |
+| `gravel` | 1.45–1.62 | 69.5–72.5 | 60–82 |
+| `touring` | 1.55–1.75 | 70.0–73.0 | 55–80 |
+| `city` | 1.55–1.80 | 69.5–72.5 | 55–85 |
+| `xc` | 1.28–1.45 | 66.5–70.0 | 85–115 |
+| `trail` | 1.22–1.40 | 64.0–67.5 | 110–140 |
+| `enduro` | 1.18–1.36 | 62.5–65.5 | 125–155 |
+| `dh` | 1.15–1.32 | 62.0–64.5 | 130–165 |
+| `dirt_jump` | 1.20–1.45 | 68.0–72.0 | 70–110 |
+| `bmx` | not scored | not scored | not scored |
+
+`bmx` sets geometry confidence to `not_applicable`, geometry score 5, and does not fail consistency for short reach.
+
+Plausibility window, outside of which consistency fails:
+
+- Head angle, if present: 60.0–80.0 inclusive.
+- Reach, if present: 330–530 mm, except `tt` which may be 330–500 and `dh` / `enduro` / `trail` which may be 380–530. BMX skips this window.
+- Stack, if present: 450–750 mm.
+- STR, if present: 1.10–1.90.
+- Offset, if present: 30–70 mm.
+- Wheel family versus class: road, tt, endurance, cyclocross use 700c or 650b; gravel and touring may also use 650b or 700c; mountain classes use 26, 27.5, or 29. A mismatch fails consistency.
+- Manufacturer chart, if the shop loaded one: measured reach differs by more than 15 mm, or axle-to-crown differs by more than 10 mm.
+
+### 8.4 Geometry points (0–10)
+
+Let `str_pts` be 4 if STR is inside the declared band, 2 if it is inside an adjacent class band **or** within 0.05 of the declared band, else 0.
+
+Let `ha_pts` be 3 if head angle is inside the band, 2 if within 0.5° of an edge, 1 if within 1.5°, else 0.
+
+Let `trail_pts` be 2 if trail is inside the band, 1 if within 5 mm of an edge, else 0. If trail is under 15 mm or over 200 mm, set `trail_pts = 0`, fail consistency, and add finding `GEOMETRY_DATA_ERROR`.
+
+`consistency_pts` is 1 if every plausibility check passes, else 0.
+
+```text
+if class == "bmx" or measured axes == 0:
+    geometry = 5
+    confidence = "not_applicable" if class == "bmx" else "unknown"
+else if STR is known and head angle is known and trail is known:
+    geometry = str_pts + ha_pts + trail_pts + consistency_pts
+    confidence = "verified"
+else:
+    geometry = (str_pts if STR known else 2)
+             + (ha_pts if head angle known else 1)
+             + (trail_pts if trail known else 1)
+             + consistency_pts
+    confidence = "partial"
+```
+
+Measured axes: the STR pair counts as one, head angle counts as one. Trail needs head angle, offset, and radius.
+
+`confidence != "verified"` caps the letter at A. `unknown` also uses geometry score 5, so a missing tape measure neither rewards nor destroys the frame.
+
+This category is not a rider fit. A 52 cm frame with correct race geometry scores 10 for a rider who needed a 56. Store rider fit somewhere else.
+
+---
+
+## 9. Scoring model
+
+### 9.1 Structural integrity (0–40)
+
+Start at 40. Apply at most one deduction for each code that is present. Then apply caps. Then, if a hard fail is present, replace the result with the floor if the floor is lower.
+
+Ordinary deductions:
+
+| Code | Points off |
+| --- | ---: |
+| `DENT_SMOOTH_STEEL_TI` | 2 |
+| `DENT_SMOOTH_AL` | 3 |
+| `DENT_CREASE` | 10 |
+| `RUST_SURFACE` | 3 |
+| `PAINT_CRACK_AT_JOINT` | 6 |
+| `REPAIR_UNDOCUMENTED` | 12 |
+| `REPAIR_METAL_DOCUMENTED` | 4 |
+| `REPAIR_CARBON_DOCUMENTED` | 8 |
+| `BB_SHELL_DAMAGE` | 8 |
+| `BB_THREADS_CHASEABLE` | 1 |
+| `BB_THREADS_UNSERVICEABLE` | 6 |
+| `DROPOUT_SCORE` | 1 |
+| `HANGER_BENT_REPLACEABLE` | 1 |
+| `HANGER_INTEGRAL_BENT` | 5 |
+| `BRAKE_THREADS_REPAIRABLE` | 3 |
+| `HEADSET_SEAT_DAMAGE` | 3 |
+| `STEERER_SCORE` | 2 |
+| `SEAT_BORE_DAMAGE` | 3 |
+| `ALIGNMENT_CORRECTABLE` | 3 |
+| `ALIGNMENT_OVER_3MM` | 5 |
+| `FORK_SPEC_UNKNOWN` | 2 |
+| `PIVOT_PLAY` | 2 each, maximum 4 |
+
+`BB_BEARING_PLAY` and headset bearing play deduct 0.
+
+Hard fails and floors:
+
+| Code | Floor | Disposition |
+| --- | ---: | --- |
+| `CRACK`, `DELAM_CONFIRMED`, `FIBER_EXPOSED`, `STEERER_BENT`, `STEERER_CRACK`, `DROPOUT_WONT_RETAIN`, `TUBE_PERFORATION`, `RECALL_OPEN`, `ALIGNMENT_UNCORRECTABLE` | 0 | `reject`, except `RECALL_OPEN` which is `hold` until the remedy is documented |
+| `CRACK` or `DENT_CREASE` on steel or titanium, and a named builder has marked it repairable, work not done | 6 | `repair_hold` |
+| `CARBON_IMPACT_UNRESOLVED` | 8 | `quarantine` |
+| `REPAIR_CARBON_UNDOCUMENTED` | 0 | `reject` |
+
+If several hard fails apply, use the lowest floor. A quarantine that a specialist later clears removes `CARBON_IMPACT_UNRESOLVED` and the frame is rescored. The software does not clear it by itself.
+
+```text
+structural = 40 - sum(deductions)
+structural = max(0, structural)
+structural = min(structural, each applicable evidence cap)
+if hard_fail:
+    structural = min(structural, floor)
+```
+
+### 9.2 Cosmetic condition (0–20)
+
+Start at 20. Cosmetics never create a hard fail. A crack through the paint is structural, not cosmetic.
+
+| Code | Points off |
+| --- | ---: |
+| `FINISH_LIGHT_SCUFF` | 1 |
+| `FINISH_CLEARCOAT_SCRATCH` | 2 |
+| `FINISH_CHIPS_FEW` | 3 |
+| `FINISH_CHIPS_MANY_OR_TO_MATERIAL` | 6 |
+| `FINISH_CHAINSTAY_RUB` | 3 |
+| `FINISH_HEEL_RUB` | 1 |
+| `FINISH_DECALS_WORN` | 2 |
+| `FINISH_STICKER_RESIDUE` | 2 |
+| `FINISH_STICKER_BOMB` | 3 |
+| `FINISH_CORROSION_STAIN` | 4 |
+| `FINISH_FADE` | 3 |
+| `FINISH_RESPRAY_POOR` | 6 |
+| `FINISH_RESPRAY_QUALITY` | 2 |
+| `FINISH_DENT_VISIBLE` | 3 |
+
+`FINISH
