@@ -12,38 +12,38 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Assemble rubric and lock
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+      - name: Assemble and commit
         run: |
           set -euo pipefail
-          changed=0
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
           if [ -f parts/rubric/DONE ]; then
             mkdir -p docs
             cat $(ls parts/rubric/*.part | sort) > docs/frame-evaluation-grading-rubric.md
             echo "rubric bytes $(wc -c < docs/frame-evaluation-grading-rubric.md)"
             sha256sum docs/frame-evaluation-grading-rubric.md
-            changed=1
+            git add docs/frame-evaluation-grading-rubric.md
           else
             echo "rubric DONE marker missing; skip"
           fi
+
           if [ -f parts/lock/DONE ]; then
             cat $(ls parts/lock/*.part | sort) > package-lock.json
             echo "lock bytes $(wc -c < package-lock.json)"
             sha256sum package-lock.json
-            changed=1
+            git add package-lock.json
           else
             echo "lock DONE marker missing; skip"
           fi
-          echo "changed=$changed" >> "$GITHUB_ENV"
-      - name: Commit assembled files
-        if: env.changed == '1'
-        run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/frame-evaluation-grading-rubric.md package-lock.json || true
+
           if git diff --cached --quiet; then
-            echo "No changes"
+            echo "No staged changes"
             exit 0
           fi
+
           git commit -m "Assemble rubric and package-lock from parts"
-          git push
+          git push origin HEAD:main
