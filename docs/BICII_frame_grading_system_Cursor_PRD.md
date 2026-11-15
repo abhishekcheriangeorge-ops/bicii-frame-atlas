@@ -136,3 +136,188 @@ Use codes to plan and measure effort, not to determine how “good” or “prem
 - `repainted_refinished`
 - `unknown`
 
+Store descriptive notes and photographs, not a disguised safety score. Original paint and documented patina may support collector appeal depending on specific market evidence.
+
+---
+
+## 6. C. Historical/commercial desirability class
+
+The five classes below are **price/market-position guides**, not quality, strength, prestige or safety grades. Assign only after identification, market evidence and reviewer approval.
+
+| Class | Website name | Initial guide price in SGD, prepared frame/frameset as actually specified |
+|---|---|---:|
+| `F1` | Found Gems | S$200–349 |
+| `F2` | Everyday Classics | S$350–499 |
+| `F3` | Heritage | S$500–699 |
+| `F4` | Sought After | S$700–999 |
+| `F5` | Collector | S$1,000+ |
+
+**Do not hardcode material → class.** Steel, aluminium, carbon and titanium are all possible in different categories if the specific construction, condition, evidence, rarity and demand support it. Fork inclusion must appear explicitly on quotes and comparables.
+
+### Proposed scoring rubric, 0–100 points
+
+| Dimension | Max | Guideline |
+|---|---:|---|
+| Manufacturer/maker provenance and reputation for this era | 15 | Quality/evidence about actual maker, including credible white-label attribution |
+| Specific model historical relevance | 20 | Was this frame/model notable, distinctive or influential? |
+| Verified tubing/construction/design interest | 20 | Actual tubing/construction, not generic steel/aluminium bias |
+| Relative scarcity and difficulty of sourcing | 15 | Local/regional supply, original configuration, verified availability |
+| Present buyer demand and market evidence | 20 | Actual comparable sales where possible; asking prices clearly labelled |
+| Documented provenance, originality and completeness | 10 | Original fork/paint/markings, credible records, not invented backstory |
+| **Total** | **100** | |
+
+Suggested *initial* mapping: `F1=0–19`, `F2=20–39`, `F3=40–59`, `F4=60–79`, `F5=80–100`. **This mapping is a configurable starting hypothesis, not validated market science.** The app must show the score, the individual evidence and a confidence level, and let a reviewer assign a different class with explanation. Calibrate thresholds after comparing 15–20 real BICII frames.
+
+**Unknown ≠ zero in every case.** Each dimension should have a `confidence` and `insufficient_evidence` flag; when data is insufficient, display an incomplete score/range and send to manual review. Never award positive provenance points based on a guess.
+
+### Avoiding scoring traps
+
+- An extremely well-made unbadged/white-label frame can score high in construction even if maker recognition is low.
+- A common chromoly frame may sit in F2 or F3, depending on evidence and market, not automatically F3.
+- A prestigious logo alone cannot overcome missing/contradictory identification.
+- A cracked collector frame might be historically valuable for display but **cannot** be marked build-ready.
+- A frame with a matching fork can command a different price from a bare frame. The app should compare like with like and flag missing fork comparability.
+
+---
+
+## 7. Valuation and selling-price calculation
+
+Pricing combines **cost floor**, **market context**, and **class-based positioning**. Do not simply multiply acquisition by a factor or choose the midpoint of the F-band.
+
+### Required inputs
+
+- Acquisition price (SGD), acquisition shipping/transport, import fees if any.
+- Preparation staff time by task, internal labour rate per person/task, actual or estimated.
+- Materials and consumables consumed in frame preparation.
+- Outsourced preservation/restoration fees.
+- Allocated overhead per frame or cost allocation method, configurable and transparent.
+- Expected sales/transaction fees (optional per channel; include when appropriate).
+- Desired gross margin rate (configurable, default only if the owner selects it).
+- Comparable listings/sales with dates, condition, included fork, country/currency, source link and *asking vs sold* distinction.
+- Human assessment of market demand, scarcity and confidence.
+- Currency conversion if comparables are not SGD: rate, date and source must be recorded; do not fetch or invent rates in offline mode.
+
+### Formula and warning logic
+
+```text
+preparation_labor_cost = Σ (hours_i × actual_rate_i)
+prepared_cost = acquisition + inbound_freight + preparation_labor_cost
+              + materials + external_services + allocated_overhead
+minimum_price_before_sales_fees = prepared_cost / (1 - target_gross_margin)
+
+# If a channel fee applies to gross selling price, and target margin means
+# margin after fee, use:
+minimum_price_after_fee = prepared_cost / (1 - target_gross_margin - selling_fee_rate)
+# Valid only if target_gross_margin + selling_fee_rate < 1.
+```
+
+The UI must label margin basis explicitly. Exclude GST from margin calculations where relevant and account for GST-inclusive retail display based on BICII's actual tax registration/status (must be configurable, not assumed). Show raw and rounded suggested prices, and explain price rounding.
+
+### Decision rule, not an automatic sticker
+
+1. Show **actual prepared cost** and **cost-floor price**.
+2. Show **F-class price band** and what evidence supports it.
+3. Show a **market-comparable range** (and its confidence) if sufficient quality comparables exist.
+4. Suggest a retail price chosen by a configurable, explainable rule or by reviewer. A simple MVP proposal is the reviewer-selectable price rounded to S$10/50 within a reasoned interval—not an opaque ML model.
+5. Flag **commercial conflict** when cost floor exceeds credible market price/band. This is a buying/preparation decision, not a reason to inflate market value silently.
+6. Permit below-floor pricing only with authorised approval and explicit reason (e.g., educational build, strategic stock, mission pricing), and show the gross loss/margin clearly.
+7. Lock an approved retail price version with `approved_by`, `approved_at` and `rationale`. Editing creates a new version.
+
+### Worked example: hypothetical early-1990s Giant Yukon
+
+This is a **test scenario**, not a claim about a specific physical frame or market sale. First confirm exact model/year, tubing, frame size, included fork and actual condition.
+
+| Input | Example |
+|---|---:|
+| Acquisition | S$80 |
+| Prep time | 3.5 hours |
+| Editable internal labour rate | S$25/hour |
+| Preparation labour cost | S$87.50 |
+| Materials/treatments | S$25 |
+| Allocated overhead | S$20 |
+| **Prepared cost** | **S$212.50** |
+| Illustrative gross-margin target | 40% |
+| **Cost floor, before sales fees** | **S$354.17** |
+| Potential value class | F2 or F3, subject to verification |
+| Potential reviewed asking price | S$450–600 **only if comparables support it** |
+
+At S$500 retail, the simplified frame gross margin is 57.5% before sales fees and any other omitted costs. At S$400 it is 46.875%. Display correct values, don't confuse mark-up with margin. Actual sales prices may be quite different.
+
+### Test example: overlooked aluminium white-label frame
+
+Acquire S$40; 2.0 hours at S$25; materials S$15; overhead S$15 → prepared cost S$120. At 40% gross margin, cost floor S$200. If evidence supports F1, price S$200–349. **No narrative that cheap means unsafe.**
+
+---
+
+## 8. Lifecycle and workflow
+
+```mermaid
+flowchart TD
+  A[New frame / intake] --> B[Identification & photos]
+  B --> C[Visual / mechanical checklist]
+  C --> D{Safety decision}
+  D -->|Hold| E[Issue / specialist review]
+  E --> C
+  D -->|Reject| R[Reject / archive]
+  D -->|Pass visual| F[Preparation plan]
+  F --> G[Record work & actual costs]
+  G --> H{New concerns?}
+  H -->|Yes| E
+  H -->|No| I[Score desirability / add comparables]
+  I --> J[Price worksheet]
+  J --> K[Manager review]
+  K -->|Request changes| F
+  K -->|Approve| L[Approved build-ready / listable]
+  L --> M[Reserved / allocated / sold]
+```
+
+### Lifecycle status vocabulary
+
+`intake_draft` → `identified` → `inspection_pending` → `hold` / `rejected` / `inspection_passed` → `preparation_planned` → `preparation_in_progress` → `ready_for_pricing` → `pricing_review` → `approved` → `listed` → `reserved` → `allocated_to_build` / `sold` / `archived`.
+
+Statuses must be validated server-side; UI buttons cannot bypass transitions or auto-mark unsafe frames safe. If reinspection invalidates approval, remove listing eligibility immediately and preserve history.
+
+### Core user journeys
+
+1. **Intake:** photograph frame, assign unique `BICII-F-000001`-style human-readable ID, log source/cost, fork contents, basic ID; save draft offline if practical.
+2. **Inspection:** complete structured checklist with flagged concerns, measurements, images, pass/hold/reject decision, responsible inspector/date.
+3. **Preservation:** add tasks and estimates, record actual labour, chemicals/consumables, before/after images and any specialist work.
+4. **Classification:** document identification evidence, score rubric dimensions, confidence and class.
+5. **Valuation:** enter comparable data; review cost floor, class range and price conflicts; propose an actual retail price.
+6. **Approval:** authorised reviewer signs off both inspection release and price, possibly in distinct steps.
+7. **Listing:** generate a public-safe frame card / PDF / Markdown and a JSON or CSV export for later storefront upload.
+8. **Inventory:** mark reserved, sold or allocated; archive, never erase history.
+
+---
+
+## 9. Data model (minimum tables/entities)
+
+The following is a logical model; Cursor should normalise tables and implement migrations accordingly.
+
+### `frames`
+- UUID primary key; unique `frame_code` business ID.
+- `brand_text`, `model_text`, `maker_text`, `estimated_year_from`, `estimated_year_to`, `year_confidence`, `material`, `material_confidence`, `tubing_claim`, `tubing_evidence`, `frame_size_label`, `serial_text` and `serial_location`.
+- `frame_only_or_frameset`, `fork_included`, `fork_originality` and fork notes.
+- `acquisition_source_type`, non-public source notes, seller identity with access controls, acquisition date/cost/currency, purchased/consigned/owned status.
+- `cosmetic_condition`, `current_status`, `inspection_status`, `preservation_class`, `value_class`, `current_approved_price_sgd` optional, timestamps and owner.
+- `public_story`: facts and owner-approved narrative, distinguishing verified from unknown.
+
+### `frame_photos`
+UUID, `frame_id`, storage path, photo type/category, before/after tag, caption, visibility internal/public, taken_at/by, checksum/version. Storage RLS. Remove serial/private seller identifiers from public exports when requested.
+
+### `frame_measurements`
+`frame_id`, `measurement_type`, numeric value, unit, measurement method, observed_by/time, uncertainty notes. Support mm and degrees; valid types configured separately.
+
+### `inspections` and `inspection_items`
+Versioned inspection, inspector, type (`visual_mechanical` default), performed_at, outcome, notes, critical_flags, approval signature. Item category/check ID, result, notes, evidence-photo IDs. Keep version history; never modify a historical pass record in place.
+
+### `preservation_work_orders` and `preservation_tasks`
+Work order statuses, planning P-class, task type, description, estimate and actual hours, internal rate, cost, materials, operator, before/after photos, completion dates, issues discovered.
+
+### `cost_items`
+Frame ID, category (`acquisition`, `freight`, `labor`, `materials`, `overhead`, `external`), amount, currency, source, related task, transaction date, inclusion in cost basis, created/updated by. Avoid double-counting task costs.
+
+### `desirability_assessments` and `assessment_scores`
+Scoring version, dimension scores, evidence, confidence, calculated total, proposed class, approved class, reason for overrides, assessor/reviewer and dates.
+
+### `market_comps`
