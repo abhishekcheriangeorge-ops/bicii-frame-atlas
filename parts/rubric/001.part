@@ -1,0 +1,143 @@
+5, 4.8.3: no visible cracks or fractures, and no separation of suspension parts after the second impact. Permanent wheelbase change shall not exceed 60 mm for city, young adult, and mountain, and 15 mm for racing.
+
+Shop meaning: racing frames are held to a much tighter permanent set in this test than mountain frames. That is a design-category difference. It is still not permission for a used racing frame to be 15 mm out of alignment. Suspension frames have an extra requirement: if the spring or damper fails, the tire must not hit the frame and the rear-wheel assembly must not detach (ISO 4210-2:2015, 4.8.1). At intake, a cracked pivot yoke or a shock mount that can pull out is a structural fail even if the main tubes look good.
+
+**Pedalling fatigue (ISO 4210-6:2023, 4.3).** Cranks are held 45° forward and down. A downward force is applied at each pedal, 150 mm from the frame centerline, inclined 7.5° from the fore-aft plane, alternating, for 100 000 cycles (one cycle is both pedals). If the built crank length is unknown, the method uses 175 mm. Published load tables for this clause, consistent across a manufacturer test report to ISO 4210-6:2023 and secondary summaries of the same table:
+
+| ISO type | Pedal force |
+| --- | ---: |
+| City and trekking | 1 000 N |
+| Young adult | 1 000 N |
+| Mountain | 1 200 N |
+| Racing | 1 100 N |
+
+ISO 4210-2:2015, 4.8.4: no visible cracks or fractures and no suspension separation. Composite frames: running displacement must not grow by more than 20%.
+
+Shop meaning: bottom-bracket shells, chainstay bridges, and down-tube/BB junctions are the fatigue sites this test is written around. Bearing play is not a frame failure. Shell ovality, a cracked lug, or a bond line opening at the BB is.
+
+**Horizontal fatigue (ISO 4210-6:2023, 4.4).** Fully reversed horizontal forces are applied at the front axle while the rear axle is pivoted. The ISO text as exposed on the ISO catalog entry for the 2023 method standard gives:
+
+| ISO type | Forward force | Rearward force | Cycles |
+| --- | ---: | ---: | ---: |
+| City and trekking | 450 N | 450 N | 100 000 |
+| Young adult | 450 N | 450 N | 100 000 |
+| Mountain | 1 200 N | 600 N | 50 000 |
+| Racing | 600 N | 600 N | 100 000 |
+
+A racing-category report published against the same clause used 600 N / 600 N for 100 000 cycles and passed with no cracks. Mountain frames see a much higher forward load and fewer cycles.
+
+Shop meaning: this is the head-tube, down-tube, and fork-dropout load path for bumps and braking. It is not a stiffness score.
+
+**Vertical fatigue (ISO 4210-6:2023, 4.5).** A repeated vertical force simulates rider weight and road shock. The same published load comparison gives:
+
+| ISO type | Vertical force |
+| --- | ---: |
+| City and trekking | 1 000 N |
+| Young adult | 500 N |
+| Mountain | 1 200 N |
+| Racing | 1 200 N |
+
+The racing-category report applied 1 200 N for 50 000 cycles. Acceptance is again no crack, no suspension separation, and the 20% composite displacement limit (ISO 4210-2:2015, 4.8.6).
+
+Shop meaning: seat-tube clusters, seatstays, and seat-clamp areas. A seatpost that slips is not a frame defect. A crack at the seat-tube/top-tube junction is.
+
+**Rear brake mounts (ISO 4210-6:2023, 4.6, required by ISO 4210-2:2023, 4.8.7).** This block was added in the 2023 edition. The racing report cited static loads of 700 N rearward and 300 N forward, held 1 minute, and a fatigue block of 500 N rearward and 50 N forward for 20 000 cycles. Treat those newtons as that report’s applied values, not as a complete reprint of every category’s table.
+
+Shop meaning: a cracked, stripped, or peeling disc-brake tab is a primary structural item, including on metal frames. Rim-brake bosses that are the only brake interface get the same severity.
+
+### 2.4 Fork tests, in shop language
+
+ISO 4210-2:2015, 4.9, applies the strength tests to all fork types. Suspension forks are tested at unloaded length unless the method says otherwise.
+
+| Test | What a pass means in the 2015 requirements text | Shop translation |
+| --- | --- | --- |
+| Axle location | Wheel sits centered when the axle is fully in the slots | A wheel that will not center, or a dropout the axle will not seat in, fails intake |
+| Suspension tire clearance | Tire does not hit the crown; parts do not separate | Look for crown rub and for legs that pull out of the casting |
+| Tensile | Sliders and legs do not separate | Any dropout insert pullout or leg separation is a fail |
+| Static bending | No crack; permanent axle-to-steerer deflection ≤ 10 mm | A fork that is visibly bent has already exceeded what the lab allows a new fork after this test. Bent fork = fail |
+| Rearward impact, all-metal | First impact: fail if cracked **or** if permanent set exceeds 45 mm. Then a second impact with no fracture. Then a third check: no movement between steerer and crown | Do not adopt 45 mm as an allowable used-fork bend. Any steerer/crown shift is a fail |
+| Rearward impact, any composite content | No fracture and permanent set ≤ 45 mm, then the steerer/crown check | Composite forks do not get the “bend but survive” path. No fracture is the rule |
+| Bending fatigue plus rearward impact | No fracture; permanent set ≤ 45 mm. Composite running displacement ≤ +20% (rigid) or ≤ +40% (suspension) | A fork that has been crashed is not cleared by a static look at the blades alone |
+| Hub or disc brake | Static torque, plus extra provisions for composite disc forks | Cracked disc tab or a tab that has started to peel from a carbon blade is a fail |
+| Steerer fatigue (2023, 4.9.9 / method 5.7) | Steerer and stem clamp region survives cyclic bending | Scoring under a stem is a watch item; a crack or a bend in the steerer is a fail |
+
+Fork static-bending forces are category-specific. Secondary summaries of the method quote on the order of 1 000 N (city and young adult), 1 500 N (mountain), and 1 200 N (racing). Those forces stay in the lab.
+
+### 2.5 How ISO enters the software
+
+Store this record. Do not reduce it to a boolean.
+
+```text
+iso_record = {
+  standard_family: "iso_4210" | "iso_8098" | "epac" | "cargo" | "out_of_scope" | "unknown",
+  iso_type_claimed: "city_trekking" | "young_adult" | "mountain" | "racing" | null,
+  evidence: "lab_report" | "manufacturer_document" | "reputable_model_year" | "none",
+  model_year: number | null,
+  voids: string[]          // modification and damage codes that cancel inheritance
+}
+```
+
+Scoring uses `evidence` only through the standards category. Structural scoring does not read it.
+
+Taiwan’s TBIS 4210 editions add a second, higher pedalling-fatigue stage (stage 1 at the ISO forces for 120 000 cycles, stage 2 at +100 N for another 100 000). That is a national industry standard, not ISO 4210. Store it as `other_lab: "tbis"`. Set `isoEvidence` to `lab_report` only when the certificate names the ISO 4210 clauses and the category tested.
+
+---
+
+## 3. UCI frameset approval
+
+### 3.1 What the procedure does
+
+The UCI approval procedure has applied since 1 January 2011 under article 1.3.001bis. From 1 January 2021 it also covers the seatpost and the frame parts between the handlebar stem and the head tube. The protocol covers equipment for **road, track, and cyclo-cross** events. It is not a mountain-bike, gravel, or city approval.
+
+The UCI’s own description of the sticker:
+
+- The sticker means the model meets the UCI technical regulations and the commercial-availability rule, so it may be used in UCI-calendar events, including UCI Gran Fondo events.
+- The **oval** sticker (2011, later split into frame and fork stickers) is shape compliance.
+- The **round** sticker (2019) adds a safety-and-quality attestation. In nearly all cases that means an ISO certification supplied by the manufacturer. The protocol says the manufacturer must attest that the material was tested and meets the security norms in force, per article 1.3.002. The clarification guide tells mechanics that, from 2019, submitted framesets must include certification of ISO 4210 compliance, and it states that the UCI is not liable for defects in the equipment a rider chooses.
+- The **rectangular** sticker (2021) adds the seatpost and the spacer/cockpit parts between stem and head tube.
+
+Approval is a **model and size** decision. The public list carries manufacturer, model, sizes checked, date, and an identification code. It is not a serial-number inspection of the frame in the stand.
+
+Two procedures:
+
+- **One-piece / molded** frames (in practice, carbon) submit drawings and a sample. Tube profiles are checked against the equipment rules (article 1.3.020 and the clarification guide). The UCI FAQ names EPFL as a measuring partner for three-dimensional checks. The UCI does not run the ISO destructive tests; the manufacturer attests those.
+- **Tubular** frames (welded, brazed, or otherwise not a polymer mold), which is the path for aluminum, steel, and titanium, use a simplified file: application, drawings of each size, labeling, and the signed security-compliance form.
+
+Cycling Weekly reported in October 2024 that the fee was 5 000 CHF plus VAT per size for carbon and 3 500 CHF plus VAT for metal, limited to eight sizes, and that labels are applied at manufacture, typically under clearcoat. The same article reports a Continental team applying stickers to frames that had not been approved. A sticker is a claim. The list is the record.
+
+### 3.2 What it does not say
+
+| Claim heard in a shop | What is actually true |
+| --- | --- |
+| “UCI approved” means safer than a non-approved frame | No. Approval requires a manufacturer ISO attestation plus a shape check. A non-listed frame can have the same or a harder in-house test. Cycling Weekly’s conclusion is the one to encode: UCI approval is not a consumer safety ranking. |
+| No sticker means unsafe | No. Most of the world’s frames are outside the procedure, including every honest mountain bike and most gravel bikes. The UCI says there is no restriction on riding a non-approved bike. |
+| The sticker grades stiffness, weight, or comfort | No. Those are not protocol criteria. |
+| The sticker proves this used frame is sound | No. It says nothing about crash damage, repairs, counterfeit molds, or a recalled batch. |
+| A round or rectangular sticker proves the UCI broke the frame on a test rig | No. ISO compliance is attested by the manufacturer. |
+| Any road frame from 2011 onward must be listed | Only if someone will start it in a UCI road, track, or cyclo-cross event that requires the current protocol. A shop sale does not. |
+
+### 3.3 How UCI enters the software
+
+```text
+uci_record = {
+  applicable: boolean,          // true only for road_race, tt, track, cyclocross
+  sticker_seen: "none" | "oval" | "round" | "rectangular" | "unreadable",
+  list_check: "matched_model_and_size" | "matched_model_size_not_listed"
+            | "not_listed" | "not_checked" | "not_applicable",
+  year_of_frame: number | null
+}
+```
+
+Points: see [standards](#93-standards-and-compatibility-0-15). A sticker that the list does not support raises finding `UCI_STICKER_UNVERIFIED`. That finding alone is not a structural fail. Combined with other counterfeit signs (wrong serial format, logo errors, decals that do not match a known model year) it sets `counterfeit_suspected`, which blocks the sale.
+
+Missing UCI paperwork on a bike the customer will not race is worth at most the single point this rubric withholds. It must not move a sound frame from A to C.
+
+---
+
+## 4. Independent lab scores (TOUR, Zedler, EFBE)
+
+These programs score **new complete bikes or new frames** under their own methods. Schema 1.0 may store their numbers. It must not mix them into structural integrity.
+
+### 4.1 TOUR (road, and their gravel/endurance variants)
+
+TOUR’s current road protocol was published on 12 January 2024. They state that old and new scores are not comparable, and that an overall grade of 1.0 is not achievable because the criteria conflict (weight against aero, stiffness against weight). Grades ar
