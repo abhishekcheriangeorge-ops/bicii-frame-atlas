@@ -1,0 +1,38 @@
+name: Assemble parts
+on:
+  push:
+    paths:
+      - 'parts/**'
+      - '.github/workflows/assemble-parts.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  assemble:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Assemble rubric
+        run: |
+          set -euo pipefail
+          if ls parts/rubric/*.part >/dev/null 2>&1; then
+            mkdir -p docs
+            cat $(ls parts/rubric/*.part | sort) > docs/frame-evaluation-grading-rubric.md
+            echo "rubric bytes $(wc -c < docs/frame-evaluation-grading-rubric.md)"
+          fi
+          if ls parts/lock/*.part >/dev/null 2>&1; then
+            cat $(ls parts/lock/*.part | sort) > package-lock.json
+            echo "lock bytes $(wc -c < package-lock.json)"
+          fi
+      - name: Commit assembled files
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/frame-evaluation-grading-rubric.md package-lock.json || true
+          if git diff --cached --quiet; then
+            echo "No changes"
+            exit 0
+          fi
+          git commit -m "Assemble rubric and package-lock from parts"
+          git push
