@@ -26,4 +26,6 @@ Simple Bicycles / Cadence Carbon, Carbon Craft X (inspection + inspected used), 
 
 ## Seed catalog
 
-Forty SAMPLE comps live in `src/data/sg-market-comps.ts` and the in-app **Market** page. Use them as starting bands; prefer real sold comps attached to a frame when available.
+Forty SAMPLE comps plus twenty **cited** Carousell/shop asks (Nov 2026 research pass) live in `src/data/sg-market-comps.ts` (`SG_MARKET_COMPS`, `CITED_SG_MARKET_COMPS`, `ALL_SG_MARKET_COMPS`) and the in-app **Market** page. Use them as starting bands; prefer real sold comps attached to a frame when available.
+
+**Calibration debt:** PRD value-class bands (F1 S$200–349 … F5 S$1,000+) are heritage/workshop guides. Live carbon FS asks often sit far above F5 — do not silently equate F5 with “any carbon over S$1k.” See `docs/research-sg-sea-frame-grading-ingest.md` §D.2 / §F.

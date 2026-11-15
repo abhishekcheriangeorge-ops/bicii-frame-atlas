@@ -44,7 +44,7 @@ Bike Guru–style dealer lists drift — recheck the floor before promising warr
 
 Store actual ask beside the band: `utility` · `budget` · `value` · `performance` · `high` · `prestige` · `custom`. Folding is almost never a bare frameset — grade the hinge with the frame.
 
-See also `src/data/brands.ts`, `src/data/sg-market-comps.ts`, and `docs/sg-frameset-market-notes.md`.
+See also `src/data/brands.ts`, `src/data/sg-market-comps.ts`, `docs/sg-frameset-market-notes.md`, `docs/grading-guardrails.md`, and the ingest pack `docs/research-sg-sea-frame-grading-ingest.md`.
 
 ## Seed rules
 
