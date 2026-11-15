@@ -220,3 +220,239 @@ The UCI’s own description of the sticker:
 
 - The sticker means the model meets the UCI technical regulations and the commercial-availability rule, so it may be used in UCI-calendar events, including UCI Gran Fondo events.
 - The **oval** sticker (2011, later split into frame and fork stickers) is shape compliance.
+- The **round** sticker (2019) adds a safety-and-quality attestation. In nearly all cases that means an ISO certification supplied by the manufacturer. The protocol says the manufacturer must attest that the material was tested and meets the security norms in force, per article 1.3.002. The clarification guide tells mechanics that, from 2019, submitted framesets must include certification of ISO 4210 compliance, and it states that the UCI is not liable for defects in the equipment a rider chooses.
+- The **rectangular** sticker (2021) adds the seatpost and the spacer/cockpit parts between stem and head tube.
+
+Approval is a **model and size** decision. The public list carries manufacturer, model, sizes checked, date, and an identification code. It is not a serial-number inspection of the frame in the stand.
+
+Two procedures:
+
+- **One-piece / molded** frames (in practice, carbon) submit drawings and a sample. Tube profiles are checked against the equipment rules (article 1.3.020 and the clarification guide). The UCI FAQ names EPFL as a measuring partner for three-dimensional checks. The UCI does not run the ISO destructive tests; the manufacturer attests those.
+- **Tubular** frames (welded, brazed, or otherwise not a polymer mold), which is the path for aluminum, steel, and titanium, use a simplified file: application, drawings of each size, labeling, and the signed security-compliance form.
+
+Cycling Weekly reported in October 2024 that the fee was 5 000 CHF plus VAT per size for carbon and 3 500 CHF plus VAT for metal, limited to eight sizes, and that labels are applied at manufacture, typically under clearcoat. The same article reports a Continental team applying stickers to frames that had not been approved. A sticker is a claim. The list is the record.
+
+### 3.2 What it does not say
+
+| Claim heard in a shop | What is actually true |
+| --- | --- |
+| “UCI approved” means safer than a non-approved frame | No. Approval requires a manufacturer ISO attestation plus a shape check. A non-listed frame can have the same or a harder in-house test. Cycling Weekly’s conclusion is the one to encode: UCI approval is not a consumer safety ranking. |
+| No sticker means unsafe | No. Most of the world’s frames are outside the procedure, including every honest mountain bike and most gravel bikes. The UCI says there is no restriction on riding a non-approved bike. |
+| The sticker grades stiffness, weight, or comfort | No. Those are not protocol criteria. |
+| The sticker proves this used frame is sound | No. It says nothing about crash damage, repairs, counterfeit molds, or a recalled batch. |
+| A round or rectangular sticker proves the UCI broke the frame on a test rig | No. ISO compliance is attested by the manufacturer. |
+| Any road frame from 2011 onward must be listed | Only if someone will start it in a UCI road, track, or cyclo-cross event that requires the current protocol. A shop sale does not. |
+
+### 3.3 How UCI enters the software
+
+```text
+uci_record = {
+  applicable: boolean,          // true only for road_race, tt, track, cyclocross
+  sticker_seen: "none" | "oval" | "round" | "rectangular" | "unreadable",
+  list_check: "matched_model_and_size" | "matched_model_size_not_listed"
+            | "not_listed" | "not_checked" | "not_applicable",
+  year_of_frame: number | null
+}
+```
+
+Points: see [standards](#93-standards-and-compatibility-0-15). A sticker that the list does not support raises finding `UCI_STICKER_UNVERIFIED`. That finding alone is not a structural fail. Combined with other counterfeit signs (wrong serial format, logo errors, decals that do not match a known model year) it sets `counterfeit_suspected`, which blocks the sale.
+
+Missing UCI paperwork on a bike the customer will not race is worth at most the single point this rubric withholds. It must not move a sound frame from A to C.
+
+---
+
+## 4. Independent lab scores (TOUR, Zedler, EFBE)
+
+These programs score **new complete bikes or new frames** under their own methods. Schema 1.0 may store their numbers. It must not mix them into structural integrity.
+
+### 4.1 TOUR (road, and their gravel/endurance variants)
+
+TOUR’s current road protocol was published on 12 January 2024. They state that old and new scores are not comparable, and that an overall grade of 1.0 is not achievable because the criteria conflict (weight against aero, stiffness against weight). Grades are the German school scale: 1.0 is the best mark they award, and larger numbers are worse. They cap stiffness so “stiffer” stops improving the grade once the bike is already stable.
+
+Weights they published for the overall **bike** grade:
+
+| Partial grade | Competition bike | Endurance and gravel |
+| --- | ---: | ---: |
+| Weight (complete bike, no pedals, lab scale, reference size) | 25% | 25% |
+| Aerodynamics (GST wind tunnel) | 25% | not graded |
+| Driving stability (frame **and** fork lateral stiffness) | 10% | 10% |
+| Handlebar comfort | 5% | 10% |
+| Saddle comfort | 10% | 20% |
+| “Start” / bottom-bracket stiffness | 10% | 5% |
+| Gears, brakes, tires (5% each) | 15% | 15% |
+| Maintenance and adjustment | not graded | 10% |
+
+Measurement definitions that matter if a parser ever ingests a TOUR table:
+
+- **Front stiffness** is the frame and fork together, in N/mm, because modern forks are often not removable. They report the useful band as about 5 to 11 N/mm. At or above 9 N/mm they assign 1.0. At or below 5 N/mm they assign a poor mark. A direct conversion from the older head-tube torsion number (N·m/°) does not exist. Their January 2025 Ostro VAM test recorded 6.6 N/mm and grade 2.7, with an overall bike grade of 1.9. That bike was still a current competition bike. **6.6 N/mm is not a structural defect.**
+- **Bottom-bracket stiffness** is N/mm under a pedalling-like fixture that lets the frame deform as it does on the road. Higher is better, then capped. The same Ostro test recorded 49 N/mm and grade 3.0. They treat that as a sprint-stiffness weakness, not as a safety failure.
+- **Comfort** is vertical compliance. Lower N/mm is a better comfort grade. They assign 1.0 to handlebar values of 50 N/mm or less; suspension forks in that fixture can reach about 20 N/mm; 150 N/mm and above is poor. Saddle comfort is frame plus seatpost. Do not rank a high comfort N/mm as “stronger.”
+- **Weight** is the complete bike in a standardized size (they use roughly 56–57 cm), not the bare frame. Their English pages sometimes say “complete wheel” for the German *Komplettrad*; the 6 860 g Ostro figure is the bike. They scale weight and aero so the two have comparable effect on speed for a reference ride of 1 000 m of climbing per 100 km, and they say aero optimization can offset up to almost 4 kg on that profile.
+- **Aero** is a dynamic wind-tunnel pass: rider dummy, rotating wheels, moving legs, a range of yaw angles, reported in watts. It is not inferred from tube shape in a workshop.
+- **Geometry** is measured on their own bench because manufacturer charts disagree. They invented the frame stack-to-reach quotient (STR) for “sporty versus upright,” and in 2024 added Stack+ / Reach+ / STR+ out to the hands on the hoods, at the lowest spacer position. They put STR+ roughly between 1.0 (very sporty) and 1.25 (very upright). The Ostro test lists frame STR 574/389 = 1.48 and STR+ 627/592 = 1.06. Frame STR and cockpit STR+ are different numbers. The engine must not compare them to the same band.
+
+TOUR’s older articles also describe head-tube torsion in N·m/°, fork lateral stiffness separate from the frame, and a stiffness-to-weight conversation with the Zedler lab. Those series are retired for scoring purposes. If both an old N·m/° and a new N/mm are present, store them as different metrics.
+
+### 4.2 Zedler
+
+Zedler’s performance fixtures measure head-tube stiffness, bottom-bracket stiffness, fork stiffness, fork comfort, frame comfort, and a **stiffness-to-weight factor (STW)** on a frame weighed ready to assemble (hanger, clamp, cable guide). They warn that the number depends strongly on the mount and the measurement point, that they repeat mounts to get a value, and that magazine differences within ±2% are measurement scatter. Larger differences are size or design. Their safety lab tests to DIN EN ISO 4210, ISO 8098, ISO 11243, EN 15194, and DIN 79010.
+
+STW is a design-efficiency figure for new high-end frames handled carefully. It is not a condition grade and not a safety grade.
+
+### 4.3 EFBE TRI-TEST
+
+EFBE’s TRI-TEST is a proprietary sequence: fatigue, a maximum static load with a permanent-set check, and an overload case, up to eight stages for a frame. It is deliberately stricter than ISO/EN and is scaled from a default total weight of 120 kg (130 kg EPAC, 135 kg S-pedelec), higher if the maker requests it. They prefer defined forces over drop tests because peak force also depends on the fixture. They also publish a non-destructive stiffness check as a way to see model variation and carbon damage.
+
+A TRI-TEST seal on a **new** model is evidence for `iso_record.evidence = "lab_report"` only if the certificate also states the ISO clauses, or else it is stored as `other_lab: "efbe_tri_test"` and does not increase the ISO points beyond the reputable-brand point. It says nothing about the used frame’s crashes.
+
+### 4.4 Rule for the engine
+
+```text
+lab_metrics = {
+  source: "tour" | "zedler" | "efbe" | "other",
+  bike_or_frame: "complete_bike" | "frameset",
+  size_tested: string | null,
+  values: { name: string, value: number, unit: string, grade: number | null }[]
+}
+```
+
+Display `lab_metrics` beside the shop grade. Never add them into `structural`. Never convert a TOUR 2.7 into a letter. Never estimate aero from photos.
+
+Weight measured **in the shop** is allowed to affect only the 0–2 market weight subscore, and only against the shop’s own band for that material, class, and size. An unscored weight stores the neutral point (1), not zero.
+
+---
+
+## 5. Used-market condition schemes
+
+None of these is a structural standard. They are the language buyers already see. The mapping is for listing export, not for calculating the letter.
+
+### 5.1 The Pro’s Closet
+
+TPC’s published CPO process (their “Inside the Certified Pre-Owned process” and “Inspected. Tested. Trusted.” pages) is a gate plus a narrative grade:
+
+- Multi-point inspection aimed at structural safety of frame and wheels. They state that heavy cosmetic damage and any structural damage do not reach the retail site.
+- Worn consumables are replaced. The bike is test-ridden.
+- Listings then describe cockpit, wheels, frame, drivetrain, and tires, with close-up photos of the blemishes they call out, plus measured geometry.
+- Frame notes on actual listings are prose: “Excellent condition,” “light scratches on the down tube,” “moderate scratches on the chainstays,” together with axle, brake, and bottom-bracket standards.
+
+TPC does not publish the numeric rubric behind that chart. Third-party writeups mention both a Fair / Good / Very Good / Excellent scale and a 7–10 scale on the theory that 1–6 never ships. Do not encode either unpublished scale. Encode only the public gate: **known structural damage is not a retail frameset**.
+
+Their carbon article describes a coin/hammer tap as a screen, then a repair vendor (Broken Carbon) for frames they have already judged unsafe. A repaired carbon frame may be a legitimate object. In this schema it is a disclosed repair, letter-capped, never an S.
+
+### 5.2 Pinkbike BuySell
+
+Pinkbike is a private marketplace. The condition control on BuySell is selected by the seller for the **whole bike**:
+
+| Pinkbike value | Meaning they assign |
+| --- | --- |
+| New - Unridden/With Tags | Unridden |
+| Excellent - Lightly Ridden | Light use |
+| Good - Used, Mechanically Sound | Used, claimed mechanically sound |
+| Poor - Needs Servicing | Needs work |
+| For Parts - Not Working / Unrideable | Not a bike to ride |
+
+Nobody verifies it. Pinkbike’s own buyer guide tells the buyer to inspect the head tube, bottom bracket, chainstays, and down tube, to cycle suspension and feel for pivot play, and to have a shop look before paying. That guide is an inspection list, not a grade.
+
+Export map, and only when the letter’s disposition is `ride` or `disclose`:
+
+| Letter | Pinkbike export (frameset, not the whole bike) |
+| --- | --- |
+| S | Excellent - Lightly Ridden |
+| A | Excellent - Lightly Ridden |
+| B | Good - Used, Mechanically Sound |
+| C | Good - Used, Mechanically Sound |
+| D | Poor - Needs Servicing |
+| F | For Parts - Not Working / Unrideable |
+
+### 5.3 eBay
+
+eBay’s condition names are marketplace item conditions, and they vary by category. They are not a bicycle inspection. Across the help page, the useful bins are:
+
+| eBay condition | Definition they publish | Frameset export |
+| --- | --- | --- |
+| New / New with tags | Unused, undamaged | S and only if `mileage_claim = unridden` and cosmetic = 20 |
+| New—open box / New without tags | Unused, may lack packaging | S with cosmetic ≥ 18 and a documented “built, unridden” note; otherwise do not use “new” |
+| Used / Pre-owned - Excellent | Used, excellent, show the wear | A, or S if the listing text admits it is used |
+| Pre-owned - Good | Gentle use, light scratches | B |
+| Pre-owned - Fair | Significant wear, scratches, dents | C or D, and never if a dent was structural |
+| Certified / Excellent / Very Good / Good - Refurbished | Refurbished by a qualified seller, warranty language | Only if the shop’s own warranty matches the eBay definition. A grade letter does not make a bike “refurbished” |
+| For parts or not working | Does not function, missing essential parts, or needs repair | F, and any D that is not rideable yet |
+
+eBay will accept a cracked frame in “Used” if the seller types that. This engine must not.
+
+### 5.4 REI Re/Supply
+
+REI does not publish an Excellent/Good/Fair rubric for used bikes. Re/Supply’s public trade-in terms are a **binary screen**, and they are useful as a cross-check:
+
+- Bike trade-in is in store, by the original purchaser, within three years of purchase.
+- The bike is complete and functional. Replaced parts must be of equivalent quality. Upgrades are not paid extra.
+- Visible wear, scratches, scuffs, and stickers are allowed.
+- **Not eligible:** dents, bends, or cracks in the frame, wheels, or any component; paint that is not the original paint; major rust, oxidation, or corrosion.
+
+So REI’s buy threshold is close to “no structural deduction for dents, bends, cracks, or perforation, and no non-original paint.” Their screen is stricter on repaint than this rubric. This rubric will still **grade** a documented repaint; REI’s published trade-in terms say they will not **buy** it. Do not call a letter-B repaint “REI Re/Supply eligible.”
+
+### 5.5 Bicycle Blue Book and local shops
+
+There is no shared local-shop standard. Many shops collapse everything into the Bicycle Blue Book tiers, which BBB defines as:
+
+| BBB tier | Their definition |
+| --- | --- |
+| Excellent | Light use, minimal wear, no cosmetic damage, nothing needs replacement |
+| Very Good | Moderate use, light scuffs, mechanically sound, nothing needs replacement |
+| Good | Regular use, visible wear; consumables may need replacement; still safe |
+| Fair | Heavy use, significant wear, may have rust, dents, or faded paint; may need repair to be reliable |
+
+BBB folds cosmetics, components, and structure into one tier, and the Fair tier explicitly allows dents. This schema must not. A dent that creases an aluminum tube can be BBB “Fair” and letter `F` here at the same time.
+
+Local-shop practice this rubric replaces:
+
+1. A safety decision: sell as a bike, sell as a project, or scrap.
+2. A cosmetic sentence.
+3. A compatibility note (axle, brake, BB) that is often missing from the price guide.
+
+Suggested shop-counter language:
+
+| Letter | Say this | Do not say this |
+| --- | --- | --- |
+| S | Inspected frameset, no structural findings, current interfaces, geometry checked | “ISO certified” or “UCI certified” unless those records exist |
+| A | Structurally sound, minor finish wear | “Mint” if cosmetic is under 18 |
+| B | Sound, normal use, see notes | “Perfect” |
+| C | Rideable, disclosed wear or older standards | “No issues” |
+| D | Not ready for the floor; needs the work listed | “Good condition” |
+| F | Not for sale as a rideable frameset | Any rideable-bike adjective |
+
+---
+
+## 6. Material-specific evaluation
+
+Score the defect, not the material’s reputation. The material changes what a defect looks like, whether it gives warning, and whether a repair can clear it.
+
+### 6.1 Carbon (fiber-reinforced polymer)
+
+Carbon can lose fibers internally while the paint still looks continuous. Trek’s composite inspection note is the right consumer warning: after a high load, look for scratches, gouges, loss of rigidity, and delamination, and listen for noises; if there is doubt, do not ride. Their tap-test instruction is: clean the part, tap the suspect area and a known-good area of a similar section with a coin, and stop riding if the sound is hollow or dead rather than a hard tap.
+
+Limits of that test, which the software must show the inspector:
+
+- A consistent ring does not prove the frame is sound. Deep delamination, damage under thick paint, and bonded joints ring oddly even when new.
+- A local dull tap is a finding, not a diagnosis. It opens `CARBON_IMPACT_UNRESOLVED` until a qualified composite inspection clears it. Ultrasonic and instrumented tap hammers, as used by specialist repair shops, are outside a normal workstand.
+- Exposed or frayed fiber, soft or crushed laminate, a wrinkle that was not in the mold line, or spiderwebbed paint over an impact is enough for a hard fail without waiting for a tap.
+
+Other carbon-specific checks:
+
+- Clamp zones: steerer under the stem, seatpost clamp, thru-axle and hanger inserts, bottle-boss areas that have been overtorqued.
+- Ports and internal-routing holes: cracks radiating from a hole.
+- Heat and abrasion: a chain that has sawn into a stay, or a tire that has abraded a stay, can reach fiber. Seven Cycles documents a muddy gravel race wearing through chainstay paint into carbon in one day. Fiber showing from abrasion is `FIBER_EXPOSED`, same as a crash gouge.
+- Galvanic corrosion around aluminum inserts shows as white residue and a loose insert. A loose bonded insert is a structural finding.
+- Repairs can be legitimate when a specialist scarfs out the damage and replaces the laminate. The shop grades the **documentation**, not the paint job. Undocumented carbon repair is a hard fail. Documented repair with a written report caps the letter (see gates) and forces disposition `disclose`.
+- Forks after a front impact are a replacement, not a repair candidate, unless a composite specialist writes that the steerer and crown were cleared. Default is `FORK_STRUCTURAL`.
+
+“Condition 1” in some owner’s manuals means a light performance frame with a short intended life and a real chance of crash damage. Record it as a warranty fact. Do not auto-fail the frame for being Condition 1.
+
+### 6.2 Aluminum
+
+Aluminum warns by bending, then cracks, usually at welds and the heat-affected zone: chainstay near the BB, dropout, head-tube gusset, brake boss.
+
+- A smooth shallow dent in the middle of a tube is a deduction.
+- A crease, a dent at a joint, or paint cracked along a weld is treated as a crack until dye penetrant says otherwise. If the shop cannot do that check, the unresolved paint-crack deduction and the evidence cap both apply.
+- Do not plan on welding a heat-treated frame back to original strength in a bike shop. Default disposition for a cracked aluminum frame is `reject`. A framebuilder can override to `repair_hold` only with a written repair plan; the letter stays `F` until the repair is done and alignment is checked.
+- Cold-setting alignment on aluminum is not routine. Measurable misalignment is `ALIGNMENT_UNCORRECTABLE` unless a builder accepts it in writing.
