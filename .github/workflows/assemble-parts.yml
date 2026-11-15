@@ -12,19 +12,30 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Assemble rubric
+      - name: Assemble rubric and lock
         run: |
           set -euo pipefail
-          if ls parts/rubric/*.part >/dev/null 2>&1; then
+          changed=0
+          if [ -f parts/rubric/DONE ]; then
             mkdir -p docs
             cat $(ls parts/rubric/*.part | sort) > docs/frame-evaluation-grading-rubric.md
             echo "rubric bytes $(wc -c < docs/frame-evaluation-grading-rubric.md)"
+            sha256sum docs/frame-evaluation-grading-rubric.md
+            changed=1
+          else
+            echo "rubric DONE marker missing; skip"
           fi
-          if ls parts/lock/*.part >/dev/null 2>&1; then
+          if [ -f parts/lock/DONE ]; then
             cat $(ls parts/lock/*.part | sort) > package-lock.json
             echo "lock bytes $(wc -c < package-lock.json)"
+            sha256sum package-lock.json
+            changed=1
+          else
+            echo "lock DONE marker missing; skip"
           fi
+          echo "changed=$changed" >> "$GITHUB_ENV"
       - name: Commit assembled files
+        if: env.changed == '1'
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
